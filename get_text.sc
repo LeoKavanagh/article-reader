@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.xml.XML
 import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
+import sys.process.Process
 
 object GetText {
 
@@ -47,16 +48,27 @@ object GetText {
   case y :: Nil => List(y)
 
   case y :: ys => {
-  val candidate = y + ". " + ys.head
+          val candidate = y + ". " + ys.head
 
-  if (candidate.length < 1500) chunk(candidate :: ys.tail)
-  else y :: chunk(ys)
-  }
+          if (candidate.length < 1500) chunk(candidate :: ys.tail)
+          else y :: chunk(ys)
+    }
   }
 
   val res = chunk(sentences)
 
   res.map(_.length)
-  res     
+  // res
+
+  val aws_base = "aws polly synthesize-speech --output-format mp3 --voice-id Brian --text \""
+  
+  val outfile = "\" sound"
+  val ending = ".mp3"
+
+  val cmds = (0 until res.length).map(x => aws_base + res(x) + outfile + x.toString() + ending) 
+  
+  for(cmd <- cmds){
+    val x = cmd !
+  }
 
 }
