@@ -86,5 +86,4 @@ object GetText {
   } 
 
   println("Now in the terminal run 'cat tmp*.mp3 >> article.mp3' to put it all together")
-
 }
