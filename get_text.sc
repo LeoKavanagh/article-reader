@@ -6,6 +6,7 @@ import scala.xml.XML
 import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
 import sys.process.Process
+import com.micronautics.aws.Polly
 
 object GetText {
 
@@ -60,15 +61,22 @@ object GetText {
   res.map(_.length)
   // res
 
-  val aws_base = "aws polly synthesize-speech --output-format mp3 --voice-id Brian --text \""
+  // use awslib_scala, which is a wrapper around the java library
+  val polly = new Polly()
+  var out_file = new java.io.File("/home/leo/repos/article_reader/article_reader/test.mp3")
+ 
+  // val aws_base = """aws polly synthesize-speech --output-format mp3 --voice-id Brian --text '"""
+  // val ending = ".mp3"
+  // val cmds = (0 until res.length).map(x => aws_base + res(x) + outfile + x.toString() + ending) 
   
-  val outfile = "\" sound"
-  val ending = ".mp3"
+  for(text_chunk <- res){
+	val sound_stream = polly.speechStream(text_chunk)
 
-  val cmds = (0 until res.length).map(x => aws_base + res(x) + outfile + x.toString() + ending) 
-  
-  for(cmd <- cmds){
-    val x = cmd !
+    java.nio.file.Files.copy(
+      sound, 
+      out_file.toPath(), 
+      java.nio.file.StandardCopyOption.REPLACE_EXISTING);
   }
 
+  org.apache.commons.io.IOUtils.closeQuietly(sound);
 }
