@@ -6,6 +6,7 @@ import scala.xml.XML
 import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
 import sys.process.Process
+import com.micronautics.aws.Polly
 
 object GetText {
 
@@ -33,13 +34,7 @@ object GetText {
 
   val sentences = extract_sentences(text)
 
-  // val sentences = List("riverrun past eve and adams",
-  // "it was the best of times it was the worst of times",
-  // "a bright cold day in april",
-  // " jfc he is driving me insane")
-  // val sentences = List("abcd", "ab", "abc", "a", "a", "abcde", "ab")
-
-  sentences.map(_.length)
+  // sentences.map(_.length)
 
   def chunk(xs: List[String]): List[String] = xs match {
 
@@ -60,15 +55,36 @@ object GetText {
   res.map(_.length)
   // res
 
-  val aws_base = "aws polly synthesize-speech --output-format mp3 --voice-id Brian --text \""
-  
-  val outfile = "\" sound"
+  // use awslib_scala, which is a wrapper around the java library
+  val file_loc = "/home/leo/repos/article_reader/article_reader/tmp"
   val ending = ".mp3"
 
-  val cmds = (0 until res.length).map(x => aws_base + res(x) + outfile + x.toString() + ending) 
+  val polly = new Polly()
+ 
+  // val aws_base = """aws polly synthesize-speech --output-format mp3 --voice-id Brian --text '"""
+  // val ending = ".mp3"
+  // val cmds = (0 until res.length).map(x => aws_base + res(x) + outfile + x.toString() + ending) 
   
-  for(cmd <- cmds){
-    val x = cmd !
+  def make_mp3(text: String, idx: Int): Unit = {
+
+	val sound_stream = polly.speechStream(text)
+
+	val file_name = file_loc + idx.toString() + ending
+    var out_file = new java.io.File(file_name)
+
+    java.nio.file.Files.copy(
+      sound_stream, 
+      out_file.toPath(), 
+      java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    
+    org.apache.commons.io.IOUtils.closeQuietly(sound_stream)
+
   }
+
+  for((text, i) <- res.zipWithIndex){
+     make_mp3(text, i)
+  } 
+
+  println("Now in the terminal run 'cat tmp*.mp3 >> article.mp3' to put it all together")
 
 }
