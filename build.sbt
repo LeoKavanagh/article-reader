@@ -1,6 +1,6 @@
 name := "Article Reader"
 version := "1.0"
-scalaVersion := "2.11.1"
+scalaVersion := "2.12.6"
 
 resolvers += "micronautics/scala on bintray" at "http://dl.bintray.com/micronautics/scala"
 
