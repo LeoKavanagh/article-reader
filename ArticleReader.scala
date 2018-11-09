@@ -1,3 +1,4 @@
+package com.articlereader
 
 import com.micronautics.aws.Polly
 import org.apache.commons.io.{IOUtils, FileUtils}
