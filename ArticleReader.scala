@@ -71,8 +71,9 @@ object ArticleReader extends App{
     val polly = new Polly()
     println("polly created")
 
-    val file_loc = "/home/leo/repos/article_reader/article_reader/tmp"
-    val ending = ".mp3"
+    // val file_loc = "/home/leo/repos/article-reader/tmp"
+    val file_loc = System.getProperty("user.dir") + "/"
+    val ending = "tmp.mp3"
 
     val text = get_article(url)
     println("got article")
