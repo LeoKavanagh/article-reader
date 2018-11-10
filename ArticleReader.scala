@@ -7,8 +7,31 @@ import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
 import sys.process._
 
+import com.amazonaws.services.polly.{AmazonPollyAsync, AmazonPollyAsyncClientBuilder}
+
+
+
 
 object ArticleReader extends App{
+
+    object MyPolly {
+      def apply: MyPolly = new MyPolly
+    }
+
+      class MyPolly extends com.micronautics.aws.Polly {
+        override implicit val pollyClient: AmazonPollyAsync = AmazonPollyAsyncClientBuilder.standard.build
+
+        /** Obtain MP3 stream from AWS Polly that voices the message */
+        override def speechStream(message: String): java.io.InputStream = {
+          import com.amazonaws.services.polly.model._
+
+          val request = new SynthesizeSpeechRequest
+          request.setVoiceId(VoiceId.Brian)
+          request.setOutputFormat(OutputFormat.Mp3)
+          request.setText(message)
+          val synthesizeSpeechResult: SynthesizeSpeechResult = pollyClient.synthesizeSpeech(request)
+          synthesizeSpeechResult.getAudioStream}
+      }
 
 
     def get_article(url: String): String = {
@@ -49,7 +72,7 @@ object ArticleReader extends App{
             }
       }
 
-      def make_mp3(text: String, idx: Int, polly: com.micronautics.aws.Polly,
+      def make_mp3(text: String, idx: Int, polly: MyPolly,
                    file_loc: String, ending: String): Unit = {
 
         val sound_stream: java.io.InputStream = polly.speechStream(text)
@@ -70,7 +93,7 @@ object ArticleReader extends App{
     val url = args(0)
     println("You passed in " + url + " as the argument")
 
-    val polly = new Polly()
+    val polly = new MyPolly()
     println("polly created")
 
     // val file_loc = "/home/leo/repos/article-reader/tmp"
