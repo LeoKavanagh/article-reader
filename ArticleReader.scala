@@ -93,7 +93,7 @@ object ArticleReader extends App{
 
     // Run bash command to concat all the *tmp.mp3 files into one single mp3
     // Wildcard characters won't work unless we explicitly call the Bourne shell
-    Seq("/bin/sh", "-c", "cat *.tmp.mp3 >> article.mp3").!
+    Seq("/bin/sh", "-c", "cat *tmp.mp3 >> article.mp3").!
     Seq("/bin/sh", "-c", "rm *tmp.mp3").!
     println("Created single mp3 file")
 
