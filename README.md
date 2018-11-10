@@ -1,19 +1,21 @@
 # Article Reader
 
-Use AWS Lambda, Amazon Polly and Telegram Bot to convert article to mp3 file.
-
-Install AWS CLI with `sudo snap install aws-cli` and accept the risks.
-
-Download the entire webpage source.
-Extract the text, do some small tidying up and return a single string.
+Use Amazon Polly to convert an article (or the `<p>` tags from any URL) to an mp3 file.
 
 Run the Scala program with
 ```
 sbt "run {{url of the article}}"
 ```
 
-Then join all the mp3 files into one with a Bash command
+The article can then be found in a file called `article.mp3`
+
+Compile into a fat jar with
 ```
-cat *.mp3 >> article.mp3
+sbt assembly
+```
+
+The resultant all-in-one jar can be deployed anywhere and run as a normal Java jar
+```
+java -jar article-reader-fat-jar.jar http://foo.bar/baz
 ```
 
