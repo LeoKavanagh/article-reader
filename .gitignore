@@ -1,6 +1,8 @@
+article_reader_venv
 .idea/
 project/
 target/
 *.mp3
 *.swp
 *.swo
+python/__pycache__
