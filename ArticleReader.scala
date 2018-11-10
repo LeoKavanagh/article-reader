@@ -5,6 +5,7 @@ import org.apache.commons.io.{IOUtils, FileUtils}
 import scala.reflect.io.File
 import scala.collection.JavaConverters._
 import org.jsoup.Jsoup
+import sys.process._
 
 
 object ArticleReader extends App{
@@ -89,5 +90,11 @@ object ArticleReader extends App{
     for((text, i) <- res.zipWithIndex){
       make_mp3(text, i, polly, file_loc, ending)
     }
+
+    // Run bash command to concat all the *tmp.mp3 files into one single mp3
+    // Wildcard characters won't work unless we explicitly call the Bourne shell
+    Seq("/bin/sh", "-c", "cat *.tmp.mp3 >> article.mp3").!
+    Seq("/bin/sh", "-c", "rm *tmp.mp3").!
+    println("Created single mp3 file")
 
 }
