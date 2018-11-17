@@ -1,3 +1,4 @@
+.gitignore
 article_reader_venv
 .idea/
 project/
@@ -6,3 +7,4 @@ target/
 *.swp
 *.swo
 python/__pycache__
+*.jar
