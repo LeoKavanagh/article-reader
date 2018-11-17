@@ -6,10 +6,7 @@ app = Flask(__name__)
 
 def run_article_reader(url):
 
-    subprocess.run('rm static/article.mp3'.split())
-    cmd = 'java -jar static/article-reader.jar {}'.format(url).split()
-    subprocess.run(cmd)
-    subprocess.run('mv article.mp3 static/articles'.split())
+    cmd = 'java -jar static/articles/article-reader.jar {}'.format(url).split()
 
 @app.route('/')
 def index():
