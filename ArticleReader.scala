@@ -58,47 +58,29 @@ object ArticleReader extends App{
             sentences
     }
 
-      def chunk(xs: List[String]): List[String] = xs match {
+    def chunk(xs: List[String]): List[String] = xs match {
 
-            case Nil => Nil
+          case Nil => Nil
 
-            case y :: Nil => List(y)
+          case y :: Nil => List(y)
 
-            case y :: ys => {
-                  val candidate = y + ". " + ys.head
+          case y :: ys => {
+                val candidate = y + ". " + ys.head
 
-                  if (candidate.length < 1500) chunk(candidate :: ys.tail)
-                  else y :: chunk(ys)
-            }
-      }
+                if (candidate.length < 1500) chunk(candidate :: ys.tail)
+                else y :: chunk(ys)
+          }
+    }
 
-      def make_mp3(text: String, idx: Int, polly: MyPolly,
-                   file_loc: String, ending: String): Unit = {
-
-        val sound_stream: java.io.InputStream = polly.speechStream(text)
-
-        val file_name: String = file_loc + idx.toString + ending
-        var out_file: java.io.File = new java.io.File(file_name)
-
-        java.nio.file.Files.copy(
-              sound_stream,
-              out_file.toPath(),
-              java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-
-        IOUtils.closeQuietly(sound_stream)
-
-      }
-
-
-    val url = args(0)
-    println("You passed in " + url + " as the argument")
+    // def make_sound_stream(text: String, polly: MyPolly): java.io.InputStream = {
+    //   polly.speechStream(text)
+    // }
 
     val polly = new MyPolly()
     println("polly created")
 
-    // val file_loc = "/home/leo/repos/article-reader/tmp"
-    val file_loc = System.getProperty("user.dir") + "/"
-    val ending = "tmp.mp3"
+    val url = args(0)
+    println("You passed in " + url + " as the argument")
 
     val text = get_article(url)
     println("got article")
@@ -109,15 +91,23 @@ object ArticleReader extends App{
     val res = chunk(sentences)
     println("chunked sentences")
 
+    val streams = res.map(x => polly.speechStream(x))
 
-    for((text, i) <- res.zipWithIndex){
-      make_mp3(text, i, polly, file_loc, ending)
-    }
+    val single_stream = streams.reduceLeft(new java.io.SequenceInputStream(_, _))
+    println("made single stream of audio from sentence chunks")
 
-    // Run bash command to concat all the *tmp.mp3 files into one single mp3
-    // Wildcard characters won't work unless we explicitly call the Bourne shell
-    Seq("/bin/sh", "-c", "cat *tmp.mp3 >> article.mp3").!
-    Seq("/bin/sh", "-c", "rm *tmp.mp3").!
-    println("Created single mp3 file")
+    val file_loc = System.getProperty("user.dir") + "/"
+    val ending = "article.mp3"
+
+    val file_name: String = file_loc + ending
+    var out_file: java.io.File = new java.io.File(file_name)
+
+    java.nio.file.Files.copy(
+          single_stream,
+          out_file.toPath(),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+
+    IOUtils.closeQuietly(single_stream)  
+    println("Wrote mp3 file")
 
 }
