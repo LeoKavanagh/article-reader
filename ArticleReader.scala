@@ -62,7 +62,24 @@ object ArticleReader extends App{
 
           case Nil => Nil
 
-          case y :: Nil => List(y)
+          case y :: Nil => {
+            if (y.length < 1500) List(y)
+            else {
+              val y_array = y.split(" ")
+
+              val split_point: Int = y_array.length/2
+
+              val first_half: String = y_array
+                .slice(0, split_point)
+                .reduce(_ + " " + _)
+
+              val second_half: String = y_array
+                .takeRight(split_point)
+                .reduce(_ + " " + _)
+
+              List(first_half, second_half)
+            }
+          }
 
           case y :: ys => {
                 val candidate = y + ". " + ys.head
@@ -91,7 +108,7 @@ object ArticleReader extends App{
     val res = chunk(sentences)
     println("chunked sentences")
 
-    val streams = res.map(x => polly.speechStream(x))
+    val streams = res.par.map(x => polly.speechStream(x))
 
     val single_stream = streams.reduceLeft(new java.io.SequenceInputStream(_, _))
     println("made single stream of audio from sentence chunks")
