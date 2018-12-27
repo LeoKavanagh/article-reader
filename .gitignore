@@ -8,3 +8,5 @@ target/
 *.swo
 python/__pycache__
 *.jar
+logs/
+*.amazonaws.com

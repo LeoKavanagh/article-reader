@@ -1,4 +1,4 @@
-package com.articlereader
+package controllers
 
 import com.micronautics.aws.Polly
 import org.apache.commons.io.{IOUtils, FileUtils}
@@ -12,7 +12,7 @@ import com.amazonaws.services.polly.{AmazonPollyAsync, AmazonPollyAsyncClientBui
 
 
 
-object ArticleReader extends App{
+object ArticleReader {
 
     object MyPolly {
       def apply: MyPolly = new MyPolly
@@ -89,42 +89,40 @@ object ArticleReader extends App{
           }
     }
 
-    // def make_sound_stream(text: String, polly: MyPolly): java.io.InputStream = {
-    //   polly.speechStream(text)
-    // }
+    def process(url: String): String = {
+      val polly = new MyPolly()
+      println("polly created")
 
-    val polly = new MyPolly()
-    println("polly created")
+      println("You passed in " + url + " as the argument")
 
-    val url = args(0)
-    println("You passed in " + url + " as the argument")
+      val text = get_article(url)
+      println("got article")
 
-    val text = get_article(url)
-    println("got article")
+      val sentences = extract_sentences(text)
+      println("extracted sentences")
 
-    val sentences = extract_sentences(text)
-    println("extracted sentences")
+      val res = chunk(sentences)
+      println("chunked sentences")
 
-    val res = chunk(sentences)
-    println("chunked sentences")
+      val streams = res.par.map(x => polly.speechStream(x))
 
-    val streams = res.par.map(x => polly.speechStream(x))
+      val single_stream = streams.reduceLeft(new java.io.SequenceInputStream(_, _))
+      println("made single stream of audio from sentence chunks")
 
-    val single_stream = streams.reduceLeft(new java.io.SequenceInputStream(_, _))
-    println("made single stream of audio from sentence chunks")
+      val file_loc = System.getProperty("user.dir") + "/public/images/"
+      val ending = "article.mp3"
 
-    val file_loc = System.getProperty("user.dir") + "/"
-    val ending = "article.mp3"
+      val file_name: String = file_loc + ending
+      var out_file: java.io.File = new java.io.File(file_name)
 
-    val file_name: String = file_loc + ending
-    var out_file: java.io.File = new java.io.File(file_name)
+      java.nio.file.Files.copy(
+            single_stream,
+            out_file.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
 
-    java.nio.file.Files.copy(
-          single_stream,
-          out_file.toPath(),
-          java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-
-    IOUtils.closeQuietly(single_stream)  
-    println("Wrote mp3 file")
+      IOUtils.closeQuietly(single_stream)  
+      println("Wrote mp3 file")
+      "Wrote mp3 file"
+    }
 
 }

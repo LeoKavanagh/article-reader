@@ -1,0 +1,15 @@
+@import helper._
+
+@(userForm: Form[BasicForm])(implicit messages: Messages)
+
+@main("Scala Play forms tutorial") {
+    <h1>Making webpages look nice is boring</h1>
+
+    <p>Enter the URL to some newspaper article here, press Submit, then wait for stuff to happen.</p>
+
+    @form(action = routes.HomeController.simpleFormPost()) {
+        @inputText(userForm("articleurl"))
+
+	<input type="submit" value="Submit">
+    }
+}
