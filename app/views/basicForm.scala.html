@@ -3,9 +3,9 @@
 @(userForm: Form[BasicForm])(implicit messages: Messages)
 
 @main("Scala Play forms tutorial") {
-    <h1>Making webpages look nice is boring</h1>
+    <h1>Article Text to Speech</h1>
 
-    <p>Enter the URL to some newspaper article here, press Submit, then wait for stuff to happen.</p>
+    <p>Enter the URL to some newspaper article here, then press Submit.</p>
 
     @form(action = routes.HomeController.simpleFormPost()) {
         @inputText(userForm("articleurl"))
