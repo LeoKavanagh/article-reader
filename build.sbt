@@ -1,25 +1,22 @@
-name := "Article Reader"
-version := "1.0"
-scalaVersion := "2.12.6"
+name := """article-reader"""
+organization := "com.github.leokavanagh"
+
+version := "1.0-SNAPSHOT"
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
+scalaVersion := "2.12.7"
 
 resolvers += "micronautics/scala on bintray" at "http://dl.bintray.com/micronautics/scala"
 
+libraryDependencies += guice
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
 libraryDependencies += "com.micronautics" %% "awslib_scala" % "1.1.12" withSources()
 
-assemblyMergeStrategy in assembly := {
- case PathList("META-INF", xs @ _*) => MergeStrategy.discard
- case x => MergeStrategy.first
-}
+// Adds additional packages into Twirl
+//TwirlKeys.templateImports += "com.github.leokavanagh.controllers._"
 
-/*
-assemblyMergeStrategy in assembly := {
-  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
-  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
-  case "application.conf"                            => MergeStrategy.concat
-  case "unwanted.txt"                                => MergeStrategy.discard
-  case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
-    oldStrategy(x)
-}
-*/
+// Adds additional packages into conf/routes
+// play.sbt.routes.RoutesKeys.routesImport += "com.github.leokavanagh.binders._"
+
