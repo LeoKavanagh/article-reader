@@ -1,13 +1,16 @@
+import os
 from flask import Flask, request, render_template, redirect
 import datetime as dt
-import subprocess
+import requests
+from lxml import html
+import operator
+import functools
+import boto3
+from logging import Logger
+from article_reader import run_article_reader
+
 app = Flask(__name__)
 
-
-def run_article_reader(url):
-
-    cmd = 'java -jar static/articles/article-reader.jar {}'.format(url).split()
-    subprocess.call(cmd)
 
 @app.route('/')
 def index():
@@ -16,6 +19,7 @@ def index():
 @app.route('/article', methods=['GET', 'POST'])
 def article():
 
+    logger = Logger('article-reader')
     if request.method == 'POST':
         url = request.form.to_dict()['articleurl']
         print('url is {}'.format(url))
