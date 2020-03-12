@@ -3,6 +3,7 @@ import datetime as dt
 import requests
 from lxml import html
 import boto3
+import uuid
 
 
 token = os.environ['THINGDONE_BOT_TOKEN']
@@ -14,7 +15,7 @@ BASE_URL = "https://api.telegram.org/bot{}" \
     .format(os.environ['THINGDONE_BOT_TOKEN'])
 
 
-def send_audio(chat_id, audio_location):
+def send_audio(chat_id, audio_location, rm=True):
 
     url = BASE_URL + "/sendAudio" + '?chat_id={}'.format(chat_id)
 
@@ -28,6 +29,9 @@ def send_audio(chat_id, audio_location):
             print(e)
 
     f.close()
+
+    if rm:
+        os.remove(audio_location)
 
 
 def get_text(url):
@@ -125,6 +129,7 @@ def synthesise_speech(polly_client, text, voice_id='Brian',
 
 def get_speech_streams(polly_client, chunked_sentences):
     """
+    TODO: Make this concurrent
     """
 
     res = list(map(lambda x: synthesise_speech(polly_client, x),
@@ -133,10 +138,7 @@ def get_speech_streams(polly_client, chunked_sentences):
     return res
 
 
-def save_streams(streams,
-                 outfile=os.path.join(os.path.dirname(__file__),
-                                      'static/audio/article.mp3'),
-                 send=False):
+def save_streams(streams, outfile):
     """
     """
 
@@ -149,23 +151,21 @@ def save_streams(streams,
         for stream in streams:
             f.write(stream['AudioStream'].read())
 
-    if send:
-        send_audio(chat_id, outfile)
-
 
 def run_article_reader(url):
     """
     """
 
     polly_client = get_polly()
+    outfile = os.path.join('/tmp', str(uuid.uuid4()) + '.mp3')
 
     text = get_text(url)
 
     sentences = extract_sentences(text)
-
     chunks = list(map(chunk, sentences))
 
     streams = get_speech_streams(polly_client, chunks)
 
     save_streams(streams, send=True)
+    send_audio(chat_id, outfile, rm=True)
 
