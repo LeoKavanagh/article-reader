@@ -166,6 +166,6 @@ def run_article_reader(url):
 
     streams = get_speech_streams(polly_client, chunks)
 
-    save_streams(streams, send=True)
+    save_streams(streams, outfile)
     send_audio(chat_id, outfile, rm=True)
 
